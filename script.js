@@ -1,66 +1,44 @@
-const container = document.querySelector(".job-container")
-//console.log(container)//
+const filterContainer = document.querySelector(".filter-container");
+const filter = document.querySelector("#filter");
+const clearBtn = document.querySelector("#clear");
+const joblistings = document.querySelector("#job-listings");
 
-async function fetchdata(){
-    try{
-        const response = await fetch('data.json');
+let selectedFilters = [];
 
-        if(!response.ok){
-            throw new Error('failed to load data.')
-        }
-        const data= await response.json()
-        displaydata(data)
-    }  
-    catch(err){
-        console.error(err)
-    }
-}
-
-fetchdata()
-
-function displaydata(fetchedData){
-    let html =""
-    fetchedData.forEach((data)=>{
-        html +=`
-         <div class="jobs">
-          <div class="left">
-            <div class="image">
-                <img src="${data.logo}">
-            </div>
-            <div class="job-description">
-                <div class="top">
-                    <p class="name">${data.company}</p>
-                    ${ data.new?'<p class="new type">NEW!</p>':''}
-                    ${ data.featured?'<p class="featured type">FEATURED</p>':''}
-                </div>
-                <div class="position">
-                    <h3>${data.position}</h3>
-                </div>
-                <div class="bottom">
-                    <ul>
-                    <li class="time"><p>${data.postedAt}</p></li>
-                    <li class="mode item"><p>${data.contract}</p></li>
-                    <li class="location item"><p>${data.location}</p></li>
-                    </ul>
-                </div>
-            </div>
+(async function () {
+  const res = await fetch("./data.json");
+  const data = await res.json();
+  data.forEach((job) => {
+    const jobCard = document.createElement("div");
+    jobCard.classList.add("jobCard");
+    jobCard.innerHTML = `
+        <div class="heading-container">
+          <div>
+            <img class="company-logo" src="${job.logo}" alt="company logo"/>
           </div>
-          <div class="right">
-            ${data.languages.map((language)=>{
-                return`
-                <p class="skills">${language}</p>`
-            }).join('')
-        }
-
-        <p class="skills">${data.level}</p> 
-
-            ${data.tools.map((tool) => {
-                return `
-            <p class="skills">${tool}</p>`}).join('')
-            }
-          </div>
+          <div>
+            <div class="heading">
+              <h1>${job.company}</h1>
+              <div class="stat"></div>
+            </div>
+            <p class="jobPosition">${job.position}</p>
+            <ul class="availability">
+              <li>${job.postedAt}</li>
+              <li>${job.contract}</li>
+              <li>${job.location}</li>
+            </ul> 
+           </div> 
         </div>
-        `
-    })
-    container.innerHTML = html
-}
+        <hr>
+        <div class="tags"></div>
+      `;
+
+    job.languages.forEach((lang) => {
+      const langBtn = document.createElement("button");
+      langBtn.textContent = lang;
+      jobCard.querySelector(".tags").appendChild(langBtn);
+    });
+
+    joblistings.appendChild(jobCard);
+  });
+})();
